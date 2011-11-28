@@ -3,6 +3,57 @@
 [Passport](https://github.com/jaredhanson/passport) strategy for authenticating
 with Gowalla using the OAuth 2.0 API.
 
+## Installation
+
+    $ npm install passport-gowalla
+
+## Usage
+
+#### Configure Strategy
+
+The Gowalla authentication strategy authenticates users using a Gowalla account
+and OAuth 2.0 tokens.  The strategy requires a `verify` callback, which accepts
+these credentials and calls `done` providing a user, as well as `options`
+specifying a client ID, client secret, and callback URL.
+
+    passport.use(new GowallaStrategy({
+        clientID: GOWALLA_API_KEY,
+        clientSecret: GOWALLA_SECRET_KEY,
+        callbackURL: "http://127.0.0.1:3000/auth/gowalla/callback"
+      },
+      function(accessToken, refreshToken, profile, done) {
+        User.findOrCreate({ gowallaId: profile.id }, function (err, user) {
+          return done(err, user);
+        });
+      }
+    ));
+
+#### Authenticate Requests
+
+Use `passport.authenticate()`, specifying the `'gowalla'` strategy, to
+authenticate requests.
+
+For example, as route middleware in an [Express](http://expressjs.com/)
+application:
+
+    app.get('/auth/gowalla',
+      passport.authenticate('gowalla'),
+      function(req, res){
+        // The request will be redirected to Gowalla for authentication, so this
+        // function will not be called.
+      });
+
+    app.get('/auth/gowalla/callback', 
+      passport.authenticate('gowalla', { failureRedirect: '/login' }),
+      function(req, res) {
+        // Successful authentication, redirect home.
+        res.redirect('/');
+      });
+
+#### Examples
+
+For a complete, working example, refer to the [login example](https://github.com/jaredhanson/passport-gowalla/tree/master/examples/login).
+
 ## Credits
 
   - [Jared Hanson](http://github.com/jaredhanson)
